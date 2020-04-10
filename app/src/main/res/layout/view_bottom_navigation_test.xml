@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/bottom_nav_bar_width_max"
+    android:layout_height="@dimen/bottom_nav_bar_height"
+    android:background="@android:color/holo_green_light">
+
+    <View
+        android:id="@+id/shadowView"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/bottom_nav_bar_shadow_size"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_bottom_nav_view_shadow" />
+
+    <LinearLayout
+        android:id="@+id/iconLabelViewGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/bottom_nav_bar_margin_start_end"
+        android:gravity="center"
+        android:orientation="horizontal"
+        tools:ignore="RtlSymmetry,UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/iconImageView"
+            android:layout_width="@dimen/bottom_nav_bar_icon_size"
+            android:layout_height="@dimen/bottom_nav_bar_icon_size"
+            tools:ignore="ContentDescription"
+            tools:src="@drawable/ic_queue_music_black_24dp" />
+
+        <TextView
+            android:id="@+id/labelTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/bottom_nav_bar_margin_icon_label"
+            android:maxLines="1"
+            android:visibility="visible"
+            tools:text="Report" />
+
+    </LinearLayout>
+
+</FrameLayout>

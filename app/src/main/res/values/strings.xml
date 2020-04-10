@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Cookbook</string>
+
+    <string name="bottom_nav_bar_item_1">Item 1</string>
+    <string name="bottom_nav_bar_item_2">Item 2</string>
+    <string name="bottom_nav_bar_item_3">Item 3</string>
+    <string name="bottom_nav_bar_item_4">Item 4</string>
+    <string name="bottom_nav_bar_item_5">Item 5</string>
+</resources>

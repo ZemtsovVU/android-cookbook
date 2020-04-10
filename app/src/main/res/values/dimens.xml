@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_nav_bar_height">56dp</dimen>
+    <dimen name="bottom_nav_bar_width_min">80dp</dimen>
+    <dimen name="bottom_nav_bar_width_max">168dp</dimen>
+    <dimen name="bottom_nav_bar_margin_start_end">12dp</dimen>
+    <dimen name="bottom_nav_bar_margin_top_bottom">16dp</dimen>
+    <dimen name="bottom_nav_bar_margin_icon_label">8dp</dimen>
+    <dimen name="bottom_nav_bar_icon_size">24dp</dimen>
+    <dimen name="bottom_nav_bar_shadow_size">40dp</dimen>
+    <dimen name="bottom_nav_bar_shadow_corner_radius">20dp</dimen>
+</resources>
