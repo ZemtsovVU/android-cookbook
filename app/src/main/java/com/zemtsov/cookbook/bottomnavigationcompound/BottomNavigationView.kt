@@ -49,8 +49,6 @@ class BottomNavigationView : FrameLayout {
     }
 
     fun setState(state: State) {
-        viewBinding.root.layoutParams = state.rootParams /*parent should do this?*/
-        viewBinding.iconLabelViewGroup.layoutParams = state.iconLabelParams
         viewBinding.shadowView.visibility = state.shadowVisibility
         viewBinding.labelTextView.visibility = state.labelVisibility
 

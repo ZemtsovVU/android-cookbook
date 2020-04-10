@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import com.zemtsov.cookbook.R
 
@@ -16,15 +15,18 @@ import com.zemtsov.cookbook.R
  * 2020
  *
  * TODO
- * Double click on child
- * Callback for child clicks (single, double)
  * Animations
+ * 1. Parent do measure and layout children
+ * 2. Parent animate children
  *
  * @author Viktor Zemtsov
  */
 class BottomNavigationBar : LinearLayout {
 
     private var lastSelectedChild: BottomNavigationView? = null
+
+    private var itemCount = 0
+    private var calculatedChildWidth = 0
 
     var onItemSelectedListener: ((index: Int, item: BottomNavigationView) -> Unit)? = null
     var onItemReselectedListener: ((index: Int, item: BottomNavigationView) -> Unit)? = null
@@ -45,44 +47,54 @@ class BottomNavigationBar : LinearLayout {
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
-        // layoutParams.height = ... не работает в момент инициализации, нужно покопаться, понять почему
-        viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                layoutParams.apply {
-                    height = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_height)
-                }
-                orientation = HORIZONTAL
-                gravity = Gravity.CENTER
-                background = ColorDrawable(Color.GREEN)
-
-                viewTreeObserver.removeOnPreDrawListener(this)
-                return true
+        post {
+            layoutParams.apply {
+                height = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_height)
             }
-        })
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER
+            background = ColorDrawable(Color.GREEN)
+        }
     }
 
     fun setItems(
         items: List<Pair<Int /*@DrawableRes*/, Int/*@StringRes*/>>,
         initialChild: Int = 0
     ) {
-        for (i in items.indices) {
-            val item = items[i]
-            val child = BottomNavigationView(context).apply {
-                setIcon(item.first)
-                setLabel(item.second)
-                setOnClickListener {
-                    if (lastSelectedChild == this) {
-                        onItemReselectedListener?.invoke(i, this)
-                    } else {
-                        toggleChildState(this)
-                        onItemSelectedListener?.invoke(i, this)
+        post {
+            itemCount = items.size
+            calculatedChildWidth = 0
+
+            for (i in items.indices) {
+                val item = items[i]
+                val child = BottomNavigationView(context).apply {
+                    layoutParams =
+                        LayoutParams(calculateChildWidth(), LayoutParams.WRAP_CONTENT)
+
+                    setIcon(item.first)
+                    setLabel(item.second)
+                    setOnClickListener {
+                        if (lastSelectedChild == this) {
+                            onItemReselectedListener?.invoke(i, this)
+                        } else {
+                            toggleChildState(this)
+                            onItemSelectedListener?.invoke(i, this)
+                        }
                     }
                 }
+                addView(child)
             }
-            addView(child)
+
+            setInitialChild(initialChild)
+        }
+    }
+
+    private fun calculateChildWidth(): Int {
+        if (calculatedChildWidth == 0) {
+            calculatedChildWidth = width / itemCount
         }
 
-        setInitialChild(initialChild)
+        return calculatedChildWidth
     }
 
     fun setInitialChild(index: Int) {
