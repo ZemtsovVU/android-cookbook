@@ -7,7 +7,8 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/bottom_nav_bar_shadow_size"
         android:layout_gravity="center"
-        android:background="@drawable/shape_bottom_nav_view_shadow" />
+        android:background="@drawable/shape_bottom_nav_view_shadow"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/iconLabelViewGroup"
@@ -32,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/bottom_nav_bar_margin_icon_label"
             android:maxLines="1"
-            android:visibility="visible"
+            android:visibility="gone"
             tools:text="Report" />
 
     </LinearLayout>

@@ -97,7 +97,7 @@ class BottomNavigationBar : LinearLayout {
         return calculatedChildWidth
     }
 
-    fun setInitialChild(index: Int) {
+    private fun setInitialChild(index: Int) {
         val child = getChildAt(index)
         if (child is BottomNavigationView) toggleChildState(child)
     }
