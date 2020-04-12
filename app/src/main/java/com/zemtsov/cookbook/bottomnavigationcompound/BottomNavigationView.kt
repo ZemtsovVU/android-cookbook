@@ -22,13 +22,16 @@ import com.zemtsov.cookbook.databinding.ViewBottomNavigationBinding
  *
  * @author Viktor Zemtsov
  */
+private const val CALCULATED_VALUES_NOT_INIT_MSG =
+    "You must call setUnselectedWidth() right after class creation"
+
 class BottomNavigationView : FrameLayout {
 
     private val viewBinding: ViewBottomNavigationBinding
 
     private var lastState: State = State.UNSELECTED
 
-    var unselectedWidth = 0
+    private lateinit var calculatedValues: CalculatedValues
 
     @JvmOverloads
     constructor(
@@ -50,66 +53,40 @@ class BottomNavigationView : FrameLayout {
         viewBinding = ViewBottomNavigationBinding.inflate(inflater, this)
     }
 
+    fun setIcon(@DrawableRes iconRes: Int) {
+        viewBinding.iconImageView.setImageResource(iconRes)
+    }
+
+    fun setLabel(@StringRes labelRes: Int) {
+        viewBinding.labelTextView.setText(labelRes)
+    }
+
+    fun setUnselectedWidth(w: Int) {
+        calculatedValues = CalculatedValues(w)
+    }
+
     fun setState(state: State) {
-        if (unselectedWidth == 0) {
-            TODO()
+        if (!this::calculatedValues.isInitialized) {
+            throw IllegalStateException(CALCULATED_VALUES_NOT_INIT_MSG)
         }
 
-        val iconSize = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_icon_size)
-        val iconMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_start_end)
-        val labelMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_icon_label)
-
-        val visibility: Int
-        val iconX: Int
-        val labelX: Int
-
-        when (state) {
-            State.SELECTED -> {
-                visibility = View.VISIBLE
-                iconX = iconMargin
-                labelX = iconMargin + labelMargin
-            }
-            State.UNSELECTED -> {
-                visibility = View.GONE
-                iconX = (unselectedWidth / 2) - (iconSize / 2)
-                labelX = 0
-            }
-        }
-
-        viewBinding.shadowView.visibility = visibility
-        viewBinding.labelTextView.visibility = visibility
-        viewBinding.iconImageView.translationX = iconX.toFloat()
-        viewBinding.labelTextView.translationX = labelX.toFloat()
+        viewBinding.shadowView.visibility = calculatedValues.visibility(state)
+        viewBinding.labelTextView.visibility = calculatedValues.visibility(state)
+        viewBinding.iconImageView.translationX = calculatedValues.iconX(state)
+        viewBinding.labelTextView.translationX = calculatedValues.labelX(state)
 
         lastState = state
     }
 
     fun getStateAnimatorSet(state: State): AnimatorSet {
-        val iconSize = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_icon_size)
-        val iconMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_start_end)
-        val labelMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_icon_label)
-
-        val alpha: Float
-        val iconX: Int
-        val labelX: Int
-
-        when (state) {
-            State.SELECTED -> {
-                alpha = 1f
-                iconX = iconMargin
-                labelX = iconMargin + labelMargin
-            }
-            State.UNSELECTED -> {
-                alpha = 0f
-                iconX = (unselectedWidth / 2) - (iconSize / 2)
-                labelX = 0
-            }
+        if (!this::calculatedValues.isInitialized) {
+            throw IllegalStateException(CALCULATED_VALUES_NOT_INIT_MSG)
         }
 
         val shadowAlphaAnimator = ObjectAnimator.ofFloat(
             viewBinding.shadowView,
             View.ALPHA,
-            alpha
+            calculatedValues.alpha(state)
         ).apply {
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationStart(animation: Animator?) {
@@ -129,7 +106,7 @@ class BottomNavigationView : FrameLayout {
         val labelAlphaAnimator = ObjectAnimator.ofFloat(
             viewBinding.labelTextView,
             View.ALPHA,
-            alpha
+            calculatedValues.alpha(state)
         ).apply {
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationStart(animation: Animator?) {
@@ -149,13 +126,13 @@ class BottomNavigationView : FrameLayout {
         val iconTranslationXAnimator = ObjectAnimator.ofFloat(
             viewBinding.iconImageView,
             View.TRANSLATION_X,
-            iconX.toFloat()
+            calculatedValues.iconX(state)
         )
 
         val labelTranslationXAnimator = ObjectAnimator.ofFloat(
             viewBinding.labelTextView,
             View.TRANSLATION_X,
-            labelX.toFloat()
+            calculatedValues.labelX(state)
         )
 
         return AnimatorSet().apply {
@@ -168,12 +145,55 @@ class BottomNavigationView : FrameLayout {
         }
     }
 
-    fun setIcon(@DrawableRes iconRes: Int) {
-        viewBinding.iconImageView.setImageResource(iconRes)
-    }
+    inner class CalculatedValues(unselectedWidth: Int) {
+        private val iconSize =
+            resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_icon_size)
+        private val iconMargin =
+            resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_start_end)
+        private val labelMargin =
+            resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_icon_label)
 
-    fun setLabel(@StringRes labelRes: Int) {
-        viewBinding.labelTextView.setText(labelRes)
+        private var selectedAlpha = 0f
+        private var unselectedAlpha = 0f
+
+        private var selectedVisibility = 0
+        private var unselectedVisibility = 0
+
+        private var selectedIconX = 0
+        private var unselectedIconX = 0
+
+        private var selectedLabelX = 0
+        private var unselectedLabelX = 0
+
+        init {
+            selectedAlpha = 1f
+            unselectedAlpha = 0f
+
+            selectedVisibility = View.VISIBLE
+            unselectedVisibility = View.GONE
+
+            selectedIconX = iconMargin
+            unselectedIconX = (unselectedWidth / 2) - (iconSize / 2)
+
+            selectedLabelX = iconMargin + labelMargin
+            unselectedLabelX = 0
+        }
+
+        fun alpha(state: State): Float {
+            return if (state == State.SELECTED) selectedAlpha else unselectedAlpha
+        }
+
+        fun visibility(state: State): Int {
+            return if (state == State.SELECTED) selectedVisibility else unselectedVisibility
+        }
+
+        fun iconX(state: State): Float {
+            return (if (state == State.SELECTED) selectedIconX else unselectedIconX).toFloat()
+        }
+
+        fun labelX(state: State): Float {
+            return (if (state == State.SELECTED) selectedLabelX else unselectedLabelX).toFloat()
+        }
     }
 
     enum class State {

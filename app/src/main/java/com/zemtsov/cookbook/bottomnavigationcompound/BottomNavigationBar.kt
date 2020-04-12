@@ -1,6 +1,5 @@
 package com.zemtsov.cookbook.bottomnavigationcompound
 
-import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
@@ -18,20 +17,20 @@ import com.zemtsov.cookbook.R
  * Developed by Viktor Zemtsov (zemtsovvu@gmail.com)
  * 2020
  *
- * Pixel perfect Material.io
+ * Pixel perfect Material.io (for phones)
  *
  * TODO
- * Animations
- * 3. Handle cancel animation
- * 4. Orchestrate animations
- * 2 pixels correction (5 tab)
+ * Pixels correction (5 tab)
  * Restriction: Only 3 to 5 tabs
- * Table method
- * Adapt for tablets
+ * Configure tab bar (background color, elevation) ???
+ * Adapt for tablets/landscape
  *
  * @author Viktor Zemtsov
  */
 class BottomNavigationBar : LinearLayout {
+
+    private val _duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+    private val _interpolator = DecelerateInterpolator()
 
     private var itemCount = 0
 
@@ -39,7 +38,7 @@ class BottomNavigationBar : LinearLayout {
         resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_width_max)
 
     /**
-     * CAUTION: You should use this only after measure pass, layout pass are completed.
+     * CAUTION: You should use this value only after measure pass and layout pass are completed.
      * Use viewTreeObserver or post() for this purpose.
      */
     private var unselectedChildWidth = 0
@@ -79,12 +78,12 @@ class BottomNavigationBar : LinearLayout {
             }
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            background = ColorDrawable(Color.GREEN)
+            background = ColorDrawable(Color.GREEN) // todo delete after debug
         }
     }
 
     fun setItems(
-        items: List<Pair<Int /*@DrawableRes*/, Int/*@StringRes*/>>,
+        items: List<Pair<Int /*@DrawableRes*/, Int/*@StringRes*/>>, // todo объект данных?
         initialChild: Int = 0
     ) {
         post {
@@ -100,9 +99,9 @@ class BottomNavigationBar : LinearLayout {
                             LayoutParams.WRAP_CONTENT
                         )
 
-                    unselectedWidth = unselectedChildWidth
                     setIcon(item.first)
                     setLabel(item.second)
+                    setUnselectedWidth(unselectedChildWidth)
                     setState(BottomNavigationView.State.UNSELECTED)
 
                     setOnClickListener {
@@ -127,18 +126,13 @@ class BottomNavigationBar : LinearLayout {
     }
 
     private fun toggleChildState(child: BottomNavigationView) {
-        var lastSelectedChildInnerAnimatorSet: AnimatorSet? = null
-        var lastSelectedChildBoundsAnimator: Animator? = null
-        lastSelectedChild?.let {
-            lastSelectedChildInnerAnimatorSet =
-                it.getStateAnimatorSet(BottomNavigationView.State.UNSELECTED)
-            lastSelectedChildBoundsAnimator = getChildAnimator(it, unselectedChildWidth)
-        }
+        val lastSelectedChildInnerAnimatorSet =
+            lastSelectedChild?.getStateAnimatorSet(BottomNavigationView.State.UNSELECTED)
+        val lastSelectedChildBoundsAnimator =
+            lastSelectedChild?.let { getChildAnimator(it, unselectedChildWidth) }
 
         val childInnerAnimatorSet = child.getStateAnimatorSet(BottomNavigationView.State.SELECTED)
         val childBoundsAnimator = getChildAnimator(child, selectedChildWidth)
-
-        val animTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
 
         if (lastSelectedChild == null) {
             AnimatorSet().apply {
@@ -147,8 +141,8 @@ class BottomNavigationBar : LinearLayout {
                     childBoundsAnimator
                 )
 
-                duration = animTime
-                interpolator = DecelerateInterpolator()
+                duration = _duration
+                interpolator = _interpolator
                 start()
             }
         } else {
@@ -160,8 +154,8 @@ class BottomNavigationBar : LinearLayout {
                     childBoundsAnimator
                 )
 
-                duration = animTime
-                interpolator = DecelerateInterpolator()
+                duration = _duration
+                interpolator = _interpolator
                 start()
             }
         }

@@ -10,7 +10,7 @@
         android:background="@drawable/shape_bottom_nav_view_shadow"
         android:visibility="visible" />
 
-    <!--android:layout_marginStart="@dimen/bottom_nav_bar_margin_start_end"-->
+    <!--Margins for children are set programmatically in class BottomNavigationView-->
     <LinearLayout
         android:id="@+id/iconLabelViewGroup"
         android:layout_width="match_parent"
@@ -27,7 +27,6 @@
             tools:ignore="ContentDescription"
             tools:src="@drawable/ic_queue_music_black_24dp" />
 
-        <!--android:layout_marginStart="@dimen/bottom_nav_bar_margin_icon_label"-->
         <TextView
             android:id="@+id/labelTextView"
             android:layout_width="wrap_content"
