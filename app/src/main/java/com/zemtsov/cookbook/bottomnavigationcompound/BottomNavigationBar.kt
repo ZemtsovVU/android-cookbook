@@ -4,8 +4,6 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
@@ -20,9 +18,7 @@ import com.zemtsov.cookbook.R
  * Pixel perfect Material.io (for phones)
  *
  * TODO
- * Pixels correction (5 tab)
- * Configure tab bar (background color, elevation) ???
- * Set list of data objects ???
+ * Pixels correction (for 5 tab in 1080p)
  * Adapt for tablets/landscape
  *
  * @author Viktor Zemtsov
@@ -80,7 +76,6 @@ class BottomNavigationBar : LinearLayout {
             }
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            background = ColorDrawable(Color.GREEN) // todo delete after debug
         }
     }
 
