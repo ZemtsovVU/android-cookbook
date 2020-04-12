@@ -18,8 +18,10 @@ import com.zemtsov.cookbook.R
  * Pixel perfect Material.io (for phones)
  *
  * TODO
- * Pixels correction (for 5 tab in 1080p)
+ * Style configuration (bar color, shadow color, text appearance, font, etc.)
+ * Collapsing behavior
  * Adapt for tablets/landscape
+ * Pixels correction (for 5 tab in 1080p)
  *
  * @author Viktor Zemtsov
  */
