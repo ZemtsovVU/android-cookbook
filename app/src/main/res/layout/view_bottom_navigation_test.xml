@@ -12,13 +12,13 @@
         android:layout_gravity="center"
         android:background="@drawable/shape_bottom_nav_view_shadow" />
 
+    <!--android:layout_marginStart="@dimen/bottom_nav_bar_margin_start_end"-->
     <LinearLayout
         android:id="@+id/iconLabelViewGroup"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="@dimen/bottom_nav_bar_margin_start_end"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         tools:ignore="RtlSymmetry,UseCompoundDrawables">
 
@@ -29,11 +29,12 @@
             tools:ignore="ContentDescription"
             tools:src="@drawable/ic_queue_music_black_24dp" />
 
+        <!--android:layout_marginStart="@dimen/bottom_nav_bar_margin_icon_label"-->
         <TextView
             android:id="@+id/labelTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/bottom_nav_bar_margin_icon_label"
+            android:ellipsize="end"
             android:maxLines="1"
             android:visibility="visible"
             tools:text="Report" />

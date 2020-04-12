@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import com.zemtsov.cookbook.R
 import com.zemtsov.cookbook.databinding.ViewBottomNavigationBinding
 
 /**
@@ -25,7 +26,9 @@ class BottomNavigationView : FrameLayout {
 
     private val viewBinding: ViewBottomNavigationBinding
 
-    private var lastState: State = State.Inactive
+    private var lastState: State = State.UNSELECTED
+
+    var unselectedWidth = 0
 
     @JvmOverloads
     constructor(
@@ -47,63 +50,122 @@ class BottomNavigationView : FrameLayout {
         viewBinding = ViewBottomNavigationBinding.inflate(inflater, this)
     }
 
-    private fun setState(state: State) {
-        val animTime = resources.getInteger(android.R.integer.config_longAnimTime).toLong()
-        val alpha = if (state is State.Active) 1f else 0f
+    fun setState(state: State) {
+        if (unselectedWidth == 0) {
+            TODO()
+        }
 
-        val shadowAnimator = ObjectAnimator.ofFloat(
+        val iconSize = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_icon_size)
+        val iconMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_start_end)
+        val labelMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_icon_label)
+
+        val visibility: Int
+        val iconX: Int
+        val labelX: Int
+
+        when (state) {
+            State.SELECTED -> {
+                visibility = View.VISIBLE
+                iconX = iconMargin
+                labelX = iconMargin + labelMargin
+            }
+            State.UNSELECTED -> {
+                visibility = View.GONE
+                iconX = (unselectedWidth / 2) - (iconSize / 2)
+                labelX = 0
+            }
+        }
+
+        viewBinding.shadowView.visibility = visibility
+        viewBinding.labelTextView.visibility = visibility
+        viewBinding.iconImageView.translationX = iconX.toFloat()
+        viewBinding.labelTextView.translationX = labelX.toFloat()
+
+        lastState = state
+    }
+
+    fun getStateAnimatorSet(state: State): AnimatorSet {
+        val iconSize = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_icon_size)
+        val iconMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_start_end)
+        val labelMargin = resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_icon_label)
+
+        val alpha: Float
+        val iconX: Int
+        val labelX: Int
+
+        when (state) {
+            State.SELECTED -> {
+                alpha = 1f
+                iconX = iconMargin
+                labelX = iconMargin + labelMargin
+            }
+            State.UNSELECTED -> {
+                alpha = 0f
+                iconX = (unselectedWidth / 2) - (iconSize / 2)
+                labelX = 0
+            }
+        }
+
+        val shadowAlphaAnimator = ObjectAnimator.ofFloat(
             viewBinding.shadowView,
-            "alpha",
+            View.ALPHA,
             alpha
         ).apply {
-            duration = animTime
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationStart(animation: Animator?) {
-                    if (state is State.Active) {
+                    if (state == State.SELECTED) {
                         viewBinding.shadowView.visibility = View.VISIBLE
                     }
                 }
 
                 override fun onAnimationEnd(animation: Animator?) {
-                    if (state is State.Inactive) {
+                    if (state == State.UNSELECTED) {
                         viewBinding.shadowView.visibility = View.GONE
                     }
                 }
             })
         }
 
-        val labelAnimator = ObjectAnimator.ofFloat(
+        val labelAlphaAnimator = ObjectAnimator.ofFloat(
             viewBinding.labelTextView,
-            "alpha",
+            View.ALPHA,
             alpha
         ).apply {
-            duration = animTime
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationStart(animation: Animator?) {
-                    if (state is State.Active) {
+                    if (state == State.SELECTED) {
                         viewBinding.labelTextView.visibility = View.VISIBLE
                     }
                 }
 
                 override fun onAnimationEnd(animation: Animator?) {
-                    if (state is State.Inactive) {
+                    if (state == State.UNSELECTED) {
                         viewBinding.labelTextView.visibility = View.GONE
                     }
                 }
             })
         }
 
-        AnimatorSet().apply {
-            playTogether(shadowAnimator, labelAnimator)
-            start()
+        val iconTranslationXAnimator = ObjectAnimator.ofFloat(
+            viewBinding.iconImageView,
+            View.TRANSLATION_X,
+            iconX.toFloat()
+        )
+
+        val labelTranslationXAnimator = ObjectAnimator.ofFloat(
+            viewBinding.labelTextView,
+            View.TRANSLATION_X,
+            labelX.toFloat()
+        )
+
+        return AnimatorSet().apply {
+            playTogether(
+                shadowAlphaAnimator,
+                labelAlphaAnimator,
+                iconTranslationXAnimator,
+                labelTranslationXAnimator
+            )
         }
-
-
-        lastState = state
-    }
-
-    fun toggleState() {
-        setState(if (lastState is State.Active) State.Inactive else State.Active(this))
     }
 
     fun setIcon(@DrawableRes iconRes: Int) {
@@ -114,58 +176,8 @@ class BottomNavigationView : FrameLayout {
         viewBinding.labelTextView.setText(labelRes)
     }
 
-    sealed class State {
-//        abstract val rootParams: LinearLayout.LayoutParams
-//        abstract val iconLabelParams: LayoutParams
-//        abstract val shadowVisibility: Int
-//        abstract val labelVisibility: Int
-
-        class Active(private val view: View) : State() {
-//            override val rootParams: LinearLayout.LayoutParams
-//                get() = LinearLayout.LayoutParams(
-//                    view.resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_width_max),
-//                    LayoutParams.WRAP_CONTENT
-//                )
-//
-//            override val iconLabelParams: LayoutParams
-//                get() = LayoutParams(
-//                    LayoutParams.WRAP_CONTENT,
-//                    LayoutParams.WRAP_CONTENT
-//                ).apply {
-//                    gravity = Gravity.CENTER_VERTICAL
-//                    marginStart =
-//                        view.resources.getDimensionPixelSize(R.dimen.bottom_nav_bar_margin_start_end)
-//                }
-//
-//            override val shadowVisibility: Int
-//                get() = View.VISIBLE
-//
-//            override val labelVisibility: Int
-//                get() = View.VISIBLE
-        }
-
-        object Inactive : State() {
-//            override val rootParams: LinearLayout.LayoutParams
-//                get() = LinearLayout.LayoutParams(
-//                    LayoutParams.WRAP_CONTENT,
-//                    LayoutParams.WRAP_CONTENT
-//                ).apply {
-//                    weight = 1f
-//                }
-//
-//            override val iconLabelParams: LayoutParams
-//                get() = LayoutParams(
-//                    LayoutParams.WRAP_CONTENT,
-//                    LayoutParams.WRAP_CONTENT
-//                ).apply {
-//                    gravity = Gravity.CENTER
-//                }
-//
-//            override val shadowVisibility: Int
-//                get() = View.GONE
-//
-//            override val labelVisibility: Int
-//                get() = View.GONE
-        }
+    enum class State {
+        SELECTED,
+        UNSELECTED
     }
 }
