@@ -23,7 +23,7 @@ import com.zemtsov.cookbook.databinding.ViewBottomNavigationBinding
  * @author Viktor Zemtsov
  */
 private const val CALCULATED_VALUES_NOT_INIT_MSG =
-    "You must call setUnselectedWidth() right after class creation"
+    "You must call setUnselectedWidth() right after class creation."
 
 class BottomNavigationView : FrameLayout {
 

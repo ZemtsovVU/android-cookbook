@@ -21,12 +21,14 @@ import com.zemtsov.cookbook.R
  *
  * TODO
  * Pixels correction (5 tab)
- * Restriction: Only 3 to 5 tabs
  * Configure tab bar (background color, elevation) ???
+ * Set list of data objects ???
  * Adapt for tablets/landscape
  *
  * @author Viktor Zemtsov
  */
+private const val ITEMS_COUNT_NOT_IN_LEGAL_RANGE_MSG = "Tabs count must be between 3 to 5."
+
 class BottomNavigationBar : LinearLayout {
 
     private val _duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
@@ -83,9 +85,13 @@ class BottomNavigationBar : LinearLayout {
     }
 
     fun setItems(
-        items: List<Pair<Int /*@DrawableRes*/, Int/*@StringRes*/>>, // todo объект данных?
+        items: List<Pair<Int /*@DrawableRes*/, Int/*@StringRes*/>>,
         initialChild: Int = 0
     ) {
+        if (items.size > 5 || items.size < 3) {
+            throw IllegalArgumentException(ITEMS_COUNT_NOT_IN_LEGAL_RANGE_MSG)
+        }
+
         post {
             itemCount = items.size
             unselectedChildWidth = 0
